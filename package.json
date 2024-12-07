@@ -1,15 +1,16 @@
 {
-    "name": "javascript-testing",
-    "version": "1.0.0",
-    "scripts": {
-        "test": "jest --coverage"
-    },
-    "devDependencies": {
-        "jest": "^29.0.0",
-        "jest-environment-jsdom": "^29.0.0"
-    },
-    "dependencies": {
-        "sweetalert2": "^11.14.5"
-    }
-    
+  "name": "javascript-testing",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --coverage",
+    "build": "cp -r src/* dist/"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.14.5"
+  }
 }
+
