@@ -28,7 +28,7 @@ jobs:
           action: "upload"
           app_location: "/" # Ajusta según tu estructura
           app_build_command: "npm run build"
-          output_location: "build/" # Ajusta según tu configuración
+          output_location: "dist" # Ajusta según tu configuración
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
