@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "jest --coverage",
-    "build": "mkdir -p dist && cp -r * dist/"
+    "build": "mkdir -p dist && rsync -av --exclude dist/ ./ dist/"
   },
   "devDependencies": {
     "jest": "^29.0.0",
