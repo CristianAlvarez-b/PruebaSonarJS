@@ -1,7 +1,6 @@
 const Swal = require('sweetalert2'); // Usar require para importar SweetAlert
 const {
   toggleLateralMenu,
-  toggleDarkMode,
   logOutUser,
   formatMoney,
   redirectToAvailableAuction
