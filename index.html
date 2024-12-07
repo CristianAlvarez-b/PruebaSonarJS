@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantalla de Login</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="icon" type="image/png" href="/img/logo.png" />
+    <meta name="google-signin-client_id" content="427937242400-1g9redl0nc6al5bu6s4fbqvlu4s7h9mk.apps.googleusercontent.com">
+</head>
+
+<body>    
+    <div class="container">
+        <div class="login-section">
+            <div class="circulo">
+                <button class="empty"></button>
+            </div>
+            <div class="login-form">
+                <h2>LOGIN</h2>             
+                <!-- Botón de Google para iniciar sesión -->
+                <div id="google-signin-button"></div>
+            </div>
+        </div>
+        <div class="signup-section">
+            <div class="header">
+                <img src="/img/puko.png" alt="" class="puko">
+                <h2>PUKO</h2>
+            </div>
+            <div class="welcome-message">
+                <h2>Hello, Friend!</h2>
+                <p>Enter your personal details<br>and start your journey with us</p>
+                <button class="signup-btn">SIGN UP</button>
+            </div>
+        </div>
+        <div class="loading"></div>
+    </div>
+
+    <!-- Scripts de JS -->
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGoogleSignIn()"></script>
+    <script src="/js/login.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script> <!-- NOSONAR -->
+
+</body>
+
+</html>
