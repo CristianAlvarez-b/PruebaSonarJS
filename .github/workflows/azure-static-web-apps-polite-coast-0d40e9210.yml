@@ -19,6 +19,30 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      # Instalar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.20.4'
+
+      # Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Ejecutar los tests y generar la cobertura
+      - name: Run tests
+        run: npm test
+
+      # Publicar los resultados de SonarCloud
+      - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          token: ${{ secrets.SONAR_TOKEN }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
+      # Build And Deploy (solo después del análisis de SonarCloud)
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -29,7 +53,6 @@ jobs:
           app_location: "/" # Ajusta según tu estructura
           app_build_command: "npm run build"
           output_location: "dist" # Ajusta según tu configuración
-          ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
