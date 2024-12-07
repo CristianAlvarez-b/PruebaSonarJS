@@ -10,7 +10,7 @@
     "jest-environment-jsdom": "^29.0.0"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "sweetalert2": "^11.14.5"
   }
 }
-

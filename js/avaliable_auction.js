@@ -61,12 +61,36 @@ function getAuthHeaders() {
         'Content-Type': 'application/json'
     };
 }
+async function getRemainingTime(auctionId) {
+    try {
+        const response = await fetch(`${apiUrl}/auctions/${auctionId}/remaining-time`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Error al cargar el tiempo restante de la subasta.');
+        const timeData = await response.json();
+        return timeData; // Suponiendo que el tiempo se devuelve en segundos
+    } catch (error) {
+        console.error(error);
+        return null; // Devuelve null en caso de error
+    }
+}
 
 function getCurrentUserId() {
     return sessionStorage.getItem("userId");
 }
+function convertAuctionDtoToJSON(input) {
+    const jsonString = input
+        .replace(/AuctionDTO\{/g, '{') // Eliminar el prefijo "AuctionDTO"
+        .replace(/(\w+)=/g, '"$1":')   // Claves a formato JSON
+        .replace(/'/g, '"')            // Cambiar comillas simples por dobles
+        .replace(/}]/g, '}]')          // Asegurar que cierre el array
+        .replace(/"startTime":"([\d\-T:]+)""/g, '"startTime":"$1"') // Corregir el problema en `startTime`
+        .replace(/status:(\w+)/g, '"status":"$1"') // Agregar comillas a `status` si falta
+        .replace(/:([^\[{"]\w+)/g, ':"$1"'); // Poner comillas a valores de texto simples
 
-//nextPageButton.style.display = "none";
+    return JSON.parse(jsonString);
+}
+nextPageButton.style.display = "none";
 async function loadAuctions() {
     const loadingElement = document.querySelector('.loading');
     loadingElement.classList.add('active'); // Muestra el indicador de carga
@@ -222,6 +246,27 @@ function deleteAuction(auction, retries = 3) {
     } catch (error) {
         console.error("Error eliminando la subasta:", error);
     }
+}
+function convertDurationToSeconds(duration) {
+    // Inicializar el total de segundos
+    let totalSeconds = 0;
+
+    // Expresión regular para capturar las horas, minutos y segundos
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+
+    // Ejecutar la expresión regular en la duración
+    const matches = duration.match(regex);
+
+    if (matches) {
+        const hours = parseInt(matches[1], 10) || 0; // Captura horas
+        const minutes = parseInt(matches[2], 10) || 0; // Captura minutos
+        const seconds = parseInt(matches[3], 10) || 0; // Captura segundos
+
+        // Convertir a segundos
+        totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+    }
+
+    return totalSeconds;
 }
 // Función para cargar los detalles de un artículo
 async function loadArticleDetails(articleId) {
@@ -702,24 +747,3 @@ function showPopup() {
         popup.classList.remove("show"); // Eliminar la clase 'show' para ocultarlo
     }, 2000); // 2000 ms = 2 segundos
 }
-module.exports = {
-    showPopup,
-    decryptData,
-    getAuthHeaders,
-    formatMoney,
-    getCurrentUserId,
-    checkSubscription,
-    startTimer,
-    setButtonStyles,
-    closeModal,
-    showModal,
-    startTimerForModal,
-    renderAuctions,
-    formatDate,
-    loadArticleDetails,
-    deleteAuction,
-    updateAmountAuction,
-    updateAuction,
-    addAuction,
-    processAuctionData
-  };

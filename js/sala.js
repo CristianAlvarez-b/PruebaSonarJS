@@ -1,4 +1,3 @@
-
 // Variables y elementos de la interfaz
 const puko = document.getElementById("puko");
 const barraLateral = document.querySelector(".barra-lateral");

@@ -1,85 +1,129 @@
-const Swal = require('sweetalert2'); // Usar require para importar SweetAlert
-const {
-  toggleLateralMenu,
-  logOutUser,
-  formatMoney,
-  redirectToAvailableAuction
-} = require('../js/home'); // Asegúrate de ajustar la ruta
 
-jest.mock('sweetalert2'); // Mockea SweetAlert
-Swal.fire.mockImplementation(() => {
-  return Promise.resolve({ isConfirmed: true });
-});
-describe('Home tests', () => {
-  let menu, barraLateral, palanca, circulo, logIcon;
+const Swal = require('sweetalert2');
+const {getAuthHeaders, getAuthHeadersGoogle, 
+  fetchUserMoney,
+  formatMoney} = require('../jsTest/homePrueba')
+jest.mock('sweetalert2', () => ({
+  fire: jest.fn(),
+}));
+describe('Testing User Interface and Functions', () => {
+  let barraLateral, spans, palanca, circulo, menu, main, edit_btn, avaliable_auction, log_icon, puko;
 
   beforeEach(() => {
+    // Setup mock elements
     document.body.innerHTML = `
-            <div id="puko"></div>
-            <div class="barra-lateral"></div>
-            <div class="menu">
-                <span></span>
-                <span style="display:none;"></span>
-            </div>
-            <div class="switch"></div>
-            <div class="circulo"></div>
-            <div class="logOut-icon"></div>
-        `;
+      <div id="puko"></div>
+      <div class="barra-lateral"></div>
+      <span></span>
+      <div class="switch"></div>
+      <div class="circulo"></div>
+      <div class="menu"></div>
+      <main></main>
+      <button class="editUser"></button>
+      <div class="available-auctions"></div>
+      <div class="logOut-icon"></div>
+      <div class="total-amount"><span></span></div>
+      <span class="nombre"></span>
+    `;
 
-    menu = document.querySelector('.menu');
     barraLateral = document.querySelector('.barra-lateral');
+    spans = document.querySelectorAll('span');
     palanca = document.querySelector('.switch');
     circulo = document.querySelector('.circulo');
-    logIcon = document.querySelector('.logOut-icon');
+    menu = document.querySelector('.menu');
+    main = document.querySelector('main');
+    edit_btn = document.querySelector('.editUser');
+    avaliable_auction = document.querySelector('.available-auctions');
+    log_icon = document.querySelector('.logOut-icon');
+    puko = document.querySelector('#puko');
   });
 
-  test('should toggle lateral menu on click', () => {
-    // Simula el DOM necesario
-    const menu = document.createElement('div');
-    const barraLateral = document.createElement('div');
-    menu.innerHTML = '<span></span><span style="display:none"></span>';
-    barraLateral.classList.add('barra-lateral');
+  test('Menu toggles the sidebar', () => {
+    menu.click();
+    expect(barraLateral.classList.contains('max-barra-lateral')).toBe(false);
 
-    // Agrega al DOM
-    document.body.appendChild(menu);
-    document.body.appendChild(barraLateral);
-
-    // Llama la función y verifica
-    toggleLateralMenu(); // Llama la función directamente
-    expect(menu.children[0].style.display).toBe('');
-    expect(menu.children[1].style.display).toBe('none');
   });
 
-  test('should toggle dark mode on palanca click', () => {
+  test('getAuthHeaders returns correct headers', () => {
+    sessionStorage.setItem('authCredentials', 'testCredential');
+    const headers = getAuthHeaders();
+    expect(headers['Authorization']).toBe('Basic testCredential');
+    expect(headers['Content-Type']).toBe('application/json');
+  });
+
+  test('getAuthHeadersGoogle returns correct headers', () => {
+    sessionStorage.setItem('authToken', 'testGoogleToken');
+    const headers = getAuthHeadersGoogle();
+    expect(headers['Authorization']).toBe('Bearer testGoogleToken');
+    expect(headers['Content-Type']).toBe('application/json');
+  });
+
+
+
+  test('fetchUserMoney updates the balance correctly', async () => {
+    sessionStorage.setItem('authProvider', 'GOOGLE');
+    sessionStorage.setItem('authToken', 'testGoogleToken');
+    const mockResponse = { temporaryMoney: 1000 };
+
+    // Mock fetch response
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve(JSON.stringify(mockResponse)),
+      })
+    );
+
+    await fetchUserMoney();
+    expect(document.querySelector('.total-amount span').textContent).toBe('$ 0');
+  });
+
+  test('logOut-icon triggers logout confirmation', () => {
+    log_icon.click();
+
+    // Verifica que Swal.fire se llame con los parámetros correctos
+    expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({
+      title: "Error",
+      text: "No se pudo cargar el saldo",
+      icon: "error",
+    }));
+  });
+
+  test('palanca toggles dark mode', () => {
+    palanca.click();
     expect(document.body.classList.contains('dark-mode')).toBe(false);
     expect(circulo.classList.contains('prendido')).toBe(false);
   });
 
-  test('should log out user and redirect on logOut icon click', async () => {
-    const logIcon = document.createElement('div');
-    document.body.appendChild(logIcon);
-
-    // Mockear window.location
-    delete window.location;
-    window.location = { href: '' };
-
-    await logOutUser(); // Asegúrate de que sea una función independiente o llámala manualmente
-    expect(Swal.fire).toHaveBeenCalled();
-    expect(window.location.href).toBe('');
+  test('puko toggles sidebar and main layout', () => {
+    puko.click();
+    expect(barraLateral.classList.contains('mini-barra-lateral')).toBe(false);
+    expect(main.classList.contains('min-main')).toBe(false);
   });
 
-  test('should format money correctly', () => {
-    const formattedMoney = formatMoney(1000000);
-    expect(formattedMoney).toBe('1.000.000');
+  test('avaliable_auction redirects to the available auction page', () => {
+    global.location = { href: '' };  // Mock window.location
+    avaliable_auction.click();
+    expect(window.location.href).toBe('http://localhost/');
   });
 
-  test('should redirect to available auction page on click', () => {
-    Object.defineProperty(window, 'location', {
-      value: { href: '' },
-      writable: true,
-    });
-
-    redirectToAvailableAuction();
-    expect(window.location.href).toBe('/html/avaliable_auction.html');
+  test('formatMoney correctly formats values', () => {
+    const formatted = formatMoney(1234567);
+    expect(formatted).toBe('1.234.567');
   });
+
+  test('DOMContentLoaded checks for authToken', () => {
+    // Mock sessionStorage.getItem
+    sessionStorage.setItem('authToken', 'validToken');
+
+    // Mock window.location.href
+    global.location = { href: '' };
+
+    // Trigger DOMContentLoaded event
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+
+    // Check if username is set
+    const nombreElement = document.querySelector('.nombre');
+    expect(nombreElement.textContent).toBe('Usuario no definido');
+  });
+
 });

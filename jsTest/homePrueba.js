@@ -1,3 +1,4 @@
+const Swal = require('sweetalert2');
 const puko = document.getElementById("puko");
 const barraLateral = document.querySelector(".barra-lateral");
 const spans = document.querySelectorAll("span");
@@ -8,23 +9,25 @@ const main = document.querySelector("main");
 const edit_btn = document.querySelector(".editUser");
 const avaliable_auction = document.querySelector(".available-auctions");
 const log_icon = document.querySelector(".logOut-icon");
-menu.addEventListener("click", () => {
-    barraLateral.classList.toggle("max-barra-lateral");
-    if (barraLateral.classList.contains("max-barra-lateral")) {
-        menu.children[0].style.display = "none";
-        menu.children[1].style.display = "block";
+try {
+    const menu = document.querySelector(".menu");
+    if (menu) {
+        menu.addEventListener("click", () => {
+            barraLateral.classList.toggle("max-barra-lateral");
+            if (barraLateral.classList.contains("max-barra-lateral")) {
+                menu.children[0].style.display = "none";
+                menu.children[1].style.display = "block";
+            } else {
+                menu.children[1].style.display = "none";
+                menu.children[0].style.display = "block";
+            }
+        });
     } else {
-        menu.children[1].style.display = "none";
-        menu.children[0].style.display = "block";
+        console.warn("Element with class '.menu' not found.");
     }
-    if (window.innerWidth <= 320) {
-        barraLateral.classList.add("mini-barra-lateral");
-        main.classList.add("min-main");
-        spans.forEach((span) => {
-            span.classList.add("oculto");
-        })
-    }
-});
+} catch (error) {
+    console.error("Error attaching event listener to 'menu':", error);
+}
 function getAuthHeaders() {
     const credentials = sessionStorage.getItem('authCredentials');
     return {
@@ -95,48 +98,65 @@ async function fetchUserMoney() {
         });
     }
 }
-log_icon.addEventListener("click", () => {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Your session will be closed!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#ccb043",
-        iconColor: "#ccb043",
-        color: "#fff",
-        cancelButtonColor: "#d33",
-        background: "#252525",
-        heightAuto: false,
-        confirmButtonText: "Yes, get me out!",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.body.setAttribute("transition-style", "out:circle:hesitate");
-            sessionStorage.clear();
-            // Espera el tiempo de la animación antes de redirigir
-            setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 2500); // 2500ms es el tiempo de la animación
-        }
+try {
+    log_icon.addEventListener("click", () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Your session will be closed!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ccb043",
+            iconColor: "#ccb043",
+            color: "#fff",
+            cancelButtonColor: "#d33",
+            background: "#252525",
+            heightAuto: false,
+            confirmButtonText: "Yes, get me out!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.body.setAttribute("transition-style", "out:circle:hesitate");
+                sessionStorage.clear();
+                // Espera el tiempo de la animación antes de redirigir
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2500); // 2500ms es el tiempo de la animación
+            }
+        });
     });
-});
+} catch (error) {
+    console.error("Error attaching event listener to 'log_icon':", error);
+}
 const encodedKey = "cHVrb2puYzEyMzQ1Njc4OQ=="; 
 const SECRET_KEY = atob(encodedKey); 
-palanca.addEventListener("click", () => {
-    let body = document.body;
-    body.classList.toggle("dark-mode");
-    circulo.classList.toggle("prendido");
-});
-puko.addEventListener("click", () => {
-    barraLateral.classList.toggle("mini-barra-lateral");
-    main.classList.toggle("min-main");
-    edit_btn.classList.toggle("oculto");
-    spans.forEach((span) => {
-        span.classList.toggle("oculto");
-    })
-});
-avaliable_auction.addEventListener("click", () => {
-    window.location.href = "/html/avaliable_auction.html";
-});
+try {
+    palanca.addEventListener("click", () => {
+        let body = document.body;
+        body.classList.toggle("dark-mode");
+        circulo.classList.toggle("prendido");
+    });
+} catch (error) {
+    console.error("Error attaching event listener to 'palanca':", error);
+}
+try{
+    puko.addEventListener("click", () => {
+        barraLateral.classList.toggle("mini-barra-lateral");
+        main.classList.toggle("min-main");
+        edit_btn.classList.toggle("oculto");
+        spans.forEach((span) => {
+            span.classList.toggle("oculto");
+        })
+    });
+}catch(error){
+    console.error("Error attaching event listener to 'puko':", error);
+}
+try{
+    avaliable_auction.addEventListener("click", () => {
+        window.location.href = "/html/avaliable_auction.html";
+    });
+}catch(error){
+    console.error("Error attaching event listener to 'avaliable_auction':", error);
+}
+
 function formatMoney(value) {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -177,3 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
 });
+module.exports = {
+    getAuthHeaders, getAuthHeadersGoogle, 
+    fetchUserMoney,
+    formatMoney
+}
+    
+    
+  

@@ -1,4 +1,5 @@
 // Función para manejar el inicio de sesión con usuario y contraseña
+const Swal = require('sweetalert2');
 function validateLogin(event) {
     event.preventDefault();
 
@@ -60,7 +61,7 @@ function validateLogin(event) {
             loadingElement.classList.remove('active');
         });
 }
-
+window.validateLogin = validateLogin;
 function handleCredentialResponse(response) {
     const idToken = response.credential; // Obtén el id_token de la respuesta de Google
     console.log("ID Token de Google:", idToken);
@@ -169,7 +170,17 @@ function decryptData(cipherText) {
         throw error;
     }
 }
+
+module.exports = {
+    decryptData
+};
+
 // Inicializa el inicio de sesión con Google cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function () {
     // El script de Google ya debe estar cargado por completo en este momento
 });
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+        validateLogin
+    };
+}
